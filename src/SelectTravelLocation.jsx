@@ -15,11 +15,13 @@ export default function SelectLocation() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch("/bus_api/bus_list/");
+                const response = await fetch("/bus_api/locations/");
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const json_data = await response.json();
+                console.log(json_data);
+                
                 setBusList(json_data);
             } catch (err) {
                 setError(err.message); 
@@ -50,7 +52,7 @@ export default function SelectLocation() {
 
     // --- Data Processing for Dropdowns ---
     const uniqueLocations = [...new Set(
-        busList.flatMap(bus => [bus.from_location, bus.destination])
+        busList.flatMap(location => [location.name])
     )].filter(location => location); 
 
     // --- Render Logic ---

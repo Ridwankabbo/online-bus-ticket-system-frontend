@@ -8,7 +8,7 @@ export default defineConfig({
   server:{
     proxy:{
       '/bus_api':{
-        target:'http://192.168.1.104:8000',
+        target:'http://localhost:8000',
         changeOrigin:true,
         secure:false
       }
