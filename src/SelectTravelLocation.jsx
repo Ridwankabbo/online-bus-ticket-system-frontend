@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'; // 👈 Import useNavigate
 import "./selectTravelLocation.css";
 
 export default function SelectLocation() {
-    const [busList, setBusList] = useState([]);
+    const [locationList, setLocationList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate(); // 👈 Initialize the hook
@@ -22,7 +22,7 @@ export default function SelectLocation() {
                 const json_data = await response.json();
                 console.log(json_data);
                 
-                setBusList(json_data);
+                setLocationList(json_data);
             } catch (err) {
                 setError(err.message); 
             } finally {
@@ -42,17 +42,17 @@ export default function SelectLocation() {
         }
 
         // 1. Filter the bus list based on the selected values
-        const filteredBuses = busList.filter(bus => 
-            bus.from_location === selectedFrom && bus.destination === selectedDest
-        );
+        // const filteredBuses = locationList.filter(bus => 
+        //     bus.from_location === selectedFrom && bus.destination === selectedDest
+        // );
 
         // 2. Navigate to the results page and pass the filtered data
-        navigate('/bus-results', { state: { results: filteredBuses, from: selectedFrom, dest: selectedDest } });
+        navigate('/bus-results', { state: { from: selectedFrom, dest: selectedDest } });
     };
 
     // --- Data Processing for Dropdowns ---
     const uniqueLocations = [...new Set(
-        busList.flatMap(location => [location.name])
+        locationList.flatMap(location => [location.name])
     )].filter(location => location); 
 
     // --- Render Logic ---

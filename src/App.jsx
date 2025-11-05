@@ -12,6 +12,7 @@ import Layout from './components/layout';
 import BusResults from './BusResults';
 import VerifyOtp from './components/Verify_otp';
 import ResetPassword from './components/reset_password';
+import BusSeatView from './busSeats';
 
 function App() {
 
@@ -24,6 +25,7 @@ function App() {
           <Route index element={<Home />} />
           <Route path='/about' />
           <Route path='/bus-results' element={<BusResults/>}/>
+          <Route path='bus-results/seats' element={<BusSeatView/>}/>
           {/* <Route path='/singup' element={<Singup />} />
           <Route path='/singin' element={<Singin />} /> */}
         </Route>
