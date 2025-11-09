@@ -9,10 +9,13 @@ export default function BusResults() {
     const [busResults, setBusResult] = useState([]);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
-    const [bus_id, setBusId] = useState(null) ;
+    const [bus_id, setBusId] = useState() ;
 
     // Extract the state (results, from, dest) passed during navigation
     const { from, dest } = location.state || {};
+
+    console.log(from, dest);
+    
 
     const searchData = new FormData()
     searchData.append('fromplace', from)
@@ -30,13 +33,13 @@ export default function BusResults() {
 
     const handleSeatsSelection = (id) =>{
         // e.preventDefault();
-        console.log(id);
-        
-        navigate('seats',{state:{bus_id:id}})
+        navigate('/bus-results/seats',{state:{id:id}})
     }
 
     useEffect(() => {
         const fetchData = async () => {
+            console.log("this is form data:",searchData);
+            
             try {
                 const request = await fetch("http://localhost:8000/bus_api/bus/search/", {
                     method: 'POST',
