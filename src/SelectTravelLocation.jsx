@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom'; // 👈 Import useNavigate
 import "./selectTravelLocation.css";
 
+
+const URL = "http://localhost:8000/bus/locations/";
 export default function SelectLocation() {
     const [locationList, setLocationList] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -15,7 +17,7 @@ export default function SelectLocation() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch("/bus_api/locations/");
+                const response = await fetch(URL);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }

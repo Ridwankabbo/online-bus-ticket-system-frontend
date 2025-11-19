@@ -3,25 +3,30 @@ import React, { useEffect, useState, } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom'; // 👈 Import useLocation
 
 
-const BUS_URL = '/bus-api/'
+const BUS_URL = 'http://localhost:8000/bus/shidules/';
 export default function BusResults() {
     const location = useLocation();
-    const [busResults, setBusResult] = useState([]);
+    const [tripShidules, setTripShidules] = useState([]);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
-    const [bus_id, setBusId] = useState() ;
+    const [bus_id, setBusId] = useState();
 
     // Extract the state (results, from, dest) passed during navigation
     const { from, dest } = location.state || {};
 
-    console.log(from, dest);
-    
+    // console.log(from, dest);
 
-    const searchData = new FormData()
-    searchData.append('fromplace', from)
-    searchData.append('destplace', dest)
 
-    if (!busResults) {
+    const searchData = {
+        source: from,
+        destination: dest
+    }
+    const params = new URLSearchParams(searchData).toString();
+    const WithParams = `${BUS_URL}?${params}`
+    console.log(WithParams);
+
+
+    if (!tripShidules) {
         // Handle direct access or missing state
         return (
             <div className="p-10 text-center">
@@ -31,27 +36,24 @@ export default function BusResults() {
         );
     }
 
-    const handleSeatsSelection = (id) =>{
+    const handleSeatsSelection = (id) => {
         // e.preventDefault();
-        navigate('/bus-results/seats',{state:{id:id}})
+        navigate('/bus-results/seats', { state: { id: id } })
     }
 
     useEffect(() => {
         const fetchData = async () => {
-            console.log("this is form data:",searchData);
-            
+            // console.log("this is form data:",searchData);
+
             try {
-                const request = await fetch("http://localhost:8000/bus_api/bus/search/", {
-                    method: 'POST',
-                    body: searchData
-            });
+                const request = await fetch(WithParams);
 
                 if (request.ok) {
                     const result = await request.json()
-                    setBusResult(result)
-                    console.log(result);
-                    
-                    console.log(busResults);
+                    console.log("API results ",result);
+                    setTripShidules(result)
+
+                    // console.log(tripShidules);
 
                 }
             } catch (error) {
@@ -62,32 +64,80 @@ export default function BusResults() {
     }, [])
 
     return (
-        <div className="p-10 mx-20">
-    <h2 className="text-[30px] font-bold mb-6">
-        Available Buses from {from} to {dest}
-    </h2>
-
-    {busResults.length === 0 ? (
-        <p className="text-xl text-red-500">
-            Sorry, no buses found for this route.
-        </p>
-    ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* ✅ CORRECTED: Removed the extra curly braces */}
-            {Array.isArray(busResults) && busResults.map(bus => (
-                <div key={bus.id} className="bg-white p-6 rounded-lg shadow-md border-t-4 border-green-600">
-                    <h3 className="text-2xl font-semibold mb-2">{bus.name}</h3>
-                    {/* <p className="text-gray-600">Route: {bus.from_location} → {bus.destination}</p> */}
-                    <p className="text-green-700 text-xl mt-3">
-                        Price: {bus.price} BDT
-                    </p>
-                    <button onClick={()=>handleSeatsSelection(bus.id)} className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-                        Book Seat Now
-                    </button>
-                </div>
-            ))}
+        <div>
+            {Array(tripShidules) && tripShidules.map(trip => {
+                return(
+                    <TripCard key={trip.id} trip={trip} handleSeatsSelection={handleSeatsSelection} />
+                )
+            })}
         </div>
-    )}
-</div>
-    );
+    )
 }
+
+const TripCard = (({trip, handleSeatsSelection}) => {
+    const tripId = trip.bus?.id;
+    const bus_name = trip.bus?.name || "None";
+    const bus_type = trip.bus?.type;
+    const source = trip.route?.surce?.name;
+    const destination = trip.route?.destination?.name;
+    const distance = trip.destance;
+    const price = parseFloat(trip.price).toFixed(2);
+    const time = trip.time;
+
+    console.log(bus_name, bus_type, source, destination, price, time);
+
+    return (
+        <div onClick={()=>{handleSeatsSelection(tripId)}} className="bg-white p-6 shadow-xl rounded-2xl border border-gray-100 transition duration-300 hover:shadow-2xl hover:scale-[1.01]">
+
+            {/* 1. HEADER: Bus Information */}
+            <div className="flex items-center justify-between border-b pb-4 mb-4">
+                <div className="flex items-center space-x-3">
+                    {/* <BusFront className="w-8 h-8 text-indigo-600" /> */}
+                    <h2 className="text-2xl font-bold text-gray-800">{bus_name}</h2>
+                </div>
+                <span className={`px-3 py-1 text-sm font-semibold rounded-full ${bus_type === 'AC' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                    {bus_type}
+                </span>
+            </div>
+
+            {/* 2. ROUTE DETAILS */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                {/* Source */}
+                <div className="flex items-center space-x-3 p-3 bg-indigo-50 rounded-lg">
+                    {/* <MapPin className="w-5 h-5 text-indigo-500" /> */}
+                    <div>
+                        <p className="text-sm text-gray-500">Source</p>
+                        <p className="font-semibold text-gray-900">{source}</p>
+                    </div>
+                </div>
+
+                {/* Destination */}
+                <div className="flex items-center space-x-3 p-3 bg-indigo-50 rounded-lg">
+                    {/* <MapPin className="w-5 h-5 text-indigo-500" /> */}
+                    <div>
+                        <p className="text-sm text-gray-500">Destination</p>
+                        <p className="font-semibold text-gray-900">{destination}</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* 3. TRIP METRICS */}
+            <div className="grid grid-cols-3 gap-4 text-center border-t pt-4">
+                <div>
+                    <p className="text-sm text-gray-500">Departure Time</p>
+                    <p className="text-xl font-bold text-indigo-600">{time}</p>
+                </div>
+                <div>
+                    <p className="text-sm text-gray-500">Distance (km)</p>
+                    <p className="text-xl font-bold text-gray-700">{distance}</p>
+                </div>
+                <div>
+                    <p className="text-sm text-gray-500 flex items-center justify-center">
+                        Price
+                    </p>
+                    <p className="text-2xl font-extrabold text-red-600">BDT {price}</p>
+                </div>
+            </div>
+        </div>
+    );
+})
