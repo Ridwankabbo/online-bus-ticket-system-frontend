@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 
-const LOGIN_API_ENDPOINT = 'http://localhost:8000/users/login-user/';
-const FORGOT_PASSWORD_API_ENDPOINT = 'http://localhost:8000/users/forgot-password/'
+const LOGIN_API_ENDPOINT = 'http://localhost:8000/user/login/api/token/';
+const FORGOT_PASSWORD_API_ENDPOINT = 'http://localhost:8000/user/forgot-password/';
 
 export default function Singin() {
     const [data, setData] = useState({
@@ -32,10 +32,13 @@ export default function Singin() {
             });
 
             if (request.ok) {
-                const result = request.json()
+                const result = await request.json()
                 console.log("successful: ", result);
+                
+                localStorage.setItem('accessToken', result.access);
+                localStorage.setItem('refreshToken', result.refresh);
                 navigate('/user-dashboard');
-                setFormData({ email: '', password: '' });
+                
                 alert('Login successfully!');
             }
             else {
@@ -72,7 +75,7 @@ export default function Singin() {
             if (request.ok){
                 const result = request.json()
                 console.log(result);
-                navigate('/user-dashboard')
+                // navigate('/user-dashboard')
             }
             else{
                 alert(`Reset failed ${request.message}`)

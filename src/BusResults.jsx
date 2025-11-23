@@ -36,9 +36,18 @@ export default function BusResults() {
         );
     }
 
-    const handleSeatsSelection = (id) => {
+    const handleBusSelection = (trip) => {
         // e.preventDefault();
-        navigate('/bus-results/seats', { state: { id: id } })
+        console.log(trip.id, trip.bus?.id);
+        const bus_details = {
+            shidule_id: trip.id,
+            bus_id : trip.bus?.id,
+            bus_name :trip.bus?.name,
+            source :trip.route?.source?.name,
+            destination : trip.route?.destination?.name
+        }
+        
+        navigate('/bus-results/seats', { state: bus_details })
     }
 
     useEffect(() => {
@@ -53,7 +62,6 @@ export default function BusResults() {
                     console.log("API results ",result);
                     setTripShidules(result)
 
-                    // console.log(tripShidules);
 
                 }
             } catch (error) {
@@ -67,15 +75,15 @@ export default function BusResults() {
         <div>
             {Array(tripShidules) && tripShidules.map(trip => {
                 return(
-                    <TripCard key={trip.id} trip={trip} handleSeatsSelection={handleSeatsSelection} />
+                    <TripCard key={trip.id} trip={trip} handleBusSelection={handleBusSelection} />
                 )
             })}
         </div>
     )
 }
 
-const TripCard = (({trip, handleSeatsSelection}) => {
-    const tripId = trip.bus?.id;
+const TripCard = (({trip, handleBusSelection}) => {
+    const tripId = trip.id;
     const bus_name = trip.bus?.name || "None";
     const bus_type = trip.bus?.type;
     const source = trip.route?.surce?.name;
@@ -87,7 +95,7 @@ const TripCard = (({trip, handleSeatsSelection}) => {
     console.log(bus_name, bus_type, source, destination, price, time);
 
     return (
-        <div onClick={()=>{handleSeatsSelection(tripId)}} className="bg-white p-6 shadow-xl rounded-2xl border border-gray-100 transition duration-300 hover:shadow-2xl hover:scale-[1.01]">
+        <div onClick={()=>{handleBusSelection(trip)}} className="bg-white p-6 shadow-xl rounded-2xl border border-gray-100 transition duration-300 hover:shadow-2xl hover:scale-[1.01]">
 
             {/* 1. HEADER: Bus Information */}
             <div className="flex items-center justify-between border-b pb-4 mb-4">

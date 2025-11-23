@@ -11,11 +11,12 @@ const BusSeatView = ({ busId }) => {
     const [selectedSeats, setSelectedSeats] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const { id } = location.state || {};
+    const { shidule_id, bus_id, bus_name, source, destination } = location.state || {};
 
-
+    console.log("shidule",shidule_id, 'bus', bus_id, bus_name, source, destination);
+    
     const searchData = {
-        id: id
+        id: bus_id
     }
     const params = new URLSearchParams(searchData).toString();
     const WithParams = `${SEATS_URL}?${params}`
@@ -25,13 +26,13 @@ const BusSeatView = ({ busId }) => {
     useEffect(() => {
         // Replace this with your actual API call (e.g., using fetch or axios)
 
-        if (!id) {
+        if (!bus_id) {
             console.log("Bus id is messing ");
             return;
         }
 
-        const bus_id = new FormData();
-        bus_id.append('bus_id', id);
+        // const bus_id = new FormData();
+        // bus_id.append('bus_id', id);
         const fetchSeats = async (formData) => {
 
             try {
@@ -60,7 +61,7 @@ const BusSeatView = ({ busId }) => {
 
     // --- SEAT SELECTION LOGIC ---
     const handleSeatClick = (seat) => {
-        if (seat.status === 'booked') return; // Cannot select booked seats
+        if (seat.seat_status == true) return; // Cannot select booked seats
 
         const isSelected = selectedSeats.includes(seat.id);
 
@@ -72,6 +73,14 @@ const BusSeatView = ({ busId }) => {
             setSelectedSeats([...selectedSeats, seat.id]);
         }
     };
+
+    const handleSeatSelection= (seat)=>{
+        const seatsBookingData = {
+            user :'',
+            shidule:'',
+            seat: selectedSeats
+        }
+    }
 
 
     // Inside BusSeatView component
@@ -99,11 +108,12 @@ const BusSeatView = ({ busId }) => {
 
     return (
         <div className="p-4 md:p-8 bg-gray-100 rounded-lg shadow-xl">
-            <h2 className="text-3xl font-bold mb-6 text-center">Seat Selection ({busId})</h2>
-
+            <pre className="text-3xl font-bold mb-6 text-center">
+                Bus:{bus_name} <br/>
+                Source:{source} to destination: {destination}</pre>
             <div className="flex justify-center mb-6">
                 <div className="w-full max-w-sm border-4 border-gray-600 rounded-lg p-6 bg-white shadow-inner">
-
+                    <h2>{}</h2>
                     {/* Bus Driver Area */}
                     <div className="flex justify-end mb-8">
                         <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center text-sm font-bold shadow-md">
@@ -150,7 +160,7 @@ const BusSeatView = ({ busId }) => {
                     }
                     disabled={selectedSeats.length === 0}
                 >
-                    Proceed to Payment
+                    Proceed to Bookng
                 </button>
             </div>
 
