@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom'; // 👈 Import useNavigate
 import "./selectTravelLocation.css";
 
 
-const URL = "http://localhost:8000/bus/locations/";
-export default function SelectLocation() {
+const LOCATIONS_URL = "http://localhost:8000/bus/locations/";
+const BUS_LIST_URL = '';
+export default function SelectLocation({ user_auth_token }) {
     const [locationList, setLocationList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -14,24 +15,39 @@ export default function SelectLocation() {
     const [selectedFrom, setSelectedFrom] = useState('');
     const [selectedDest, setSelectedDest] = useState('');
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch(URL);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const json_data = await response.json();
-                console.log(json_data);
-                
-                setLocationList(json_data);
-            } catch (err) {
-                setError(err.message); 
-            } finally {
-                setLoading(false);
+    const fetchLocatinsData = async () => {
+        try {
+            const response = await fetch(LOCATIONS_URL, {
+                method: "GET",
+                headers: {
+                    'Authorization': `Bearer ${user_auth_token}`,
+                    'Content-Type': 'application/json'
+                },
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-        };
-        fetchData();
+            const json_data = await response.json();
+            console.log(json_data);
+
+            setLocationList(json_data);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchBusList = async () => {
+        try {
+            const request = await fetch();
+        } catch (error) {
+
+        }
+    };
+    useEffect(() => {
+        fetchLocatinsData();
+        fetchBusList();
     }, []);
 
     // --- FORM SUBMISSION HANDLER ---
@@ -55,22 +71,22 @@ export default function SelectLocation() {
     // --- Data Processing for Dropdowns ---
     const uniqueLocations = [...new Set(
         locationList.flatMap(location => [location.name])
-    )].filter(location => location); 
+    )].filter(location => location);
 
     // --- Render Logic ---
     if (loading) return <p className="text-center py-5">Loading available routes...</p>;
     if (error) return <p className="text-center py-5 text-red-600">Error fetching data: {error}</p>;
 
     return (
-        <section className="my-5 text-center p-10 mx-20 rounded-md">
-            <h2 className="text-[30px] py-15 font-semibold">Select your Journey From and Destination </h2>
+        <section className="my-4 text-center  mx-20 rounded-md">
+            {/* <h2 className="text-[30px] py-15 font-semibold">Select your Journey From and Destination </h2> */}
             {/* 👈 Attach handleSearch to the form's onSubmit */}
-            <form onSubmit={handleSearch}> 
+            <form onSubmit={handleSearch}>
                 <div className="flex justify-around flex-wrap gap-10">
-                    
+
                     {/* FROM Dropdown */}
-                    <select 
-                        name="from" 
+                    <select
+                        name="from"
                         className="px-20 py-3 bg-stone-200 rounded-md"
                         onChange={(e) => setSelectedFrom(e.target.value)} // 👈 Update state on change
                         value={selectedFrom}
@@ -80,10 +96,10 @@ export default function SelectLocation() {
                             <option key={location} value={location}>{location}</option>
                         ))}
                     </select>
-                    
+
                     {/* DESTINATION Dropdown */}
-                    <select 
-                        name="destination" 
+                    <select
+                        name="destination"
                         className="px-20 py-3 bg-stone-200 rounded-md"
                         onChange={(e) => setSelectedDest(e.target.value)} // 👈 Update state on change
                         value={selectedDest}
@@ -93,7 +109,7 @@ export default function SelectLocation() {
                             <option key={location} value={location}>{location}</option>
                         ))}
                     </select>
-                    
+
                     <button className="bg-green-700 text-white px-5 py-3 rounded-sm" type="submit">find bus</button>
                 </div>
             </form>

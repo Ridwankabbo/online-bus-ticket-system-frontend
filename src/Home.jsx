@@ -1,7 +1,7 @@
 
 import Header from "./components/Header";
 import Footer from './components/footer';
-import SelectLocation from "./SelectTravelLocation";
+import SelectLocation from "./components/SelectTravelLocation";
 import TravelPlaces from "./TravelPlaces";
 
 export default function Home(){

@@ -1,16 +1,5 @@
-import React, { useEffect, useState } from "react";
-
-
-export default function UserDashboard() {
-
-    function Heading() {
-        return (
-            <section className="flex justify-center py-4 bg-green-600 text-white text-5xl font-bold">
-                <div>EasyTravel</div>
-            </section>
-        )
-    }
-
+import React from "react";
+import { useState, useEffect } from "react";
 function TicketsHistory() {
 
     const FIND_TicketHistory_URL = "http://localhost:8000/user/user-profile/";
@@ -105,12 +94,4 @@ function TicketsHistory() {
     );
 }
 
-
-
-    return (
-        <>
-            <Heading />
-            <TicketsHistory />
-        </>
-    )
-}
+export default TicketsHistory;
