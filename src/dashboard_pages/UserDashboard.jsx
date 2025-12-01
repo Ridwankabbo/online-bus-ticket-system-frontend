@@ -16,9 +16,9 @@ export default function UserDashboard() {
         <>
             <Heading />
             <section className="flex">
-                <div className="flex flex-col items-center bg-stone-100 gap-2 py-5 px-3" >
-                    <Link to={'find-bus'} className="bg-white rounded-xl py-3 px-5">find bus</Link>
-                    <Link to={'history'} className="bg-white rounded-xl py-3 px-5">History</Link>
+                <div className="flex flex-col items-center bg-stone-100 gap-2 py-5 px-7" >
+                    <Link to={'find-bus'} className="bg-white rounded-xl py-3 px-10 text-xl">find bus</Link>
+                    <Link to={'history'} className="bg-white rounded-xl py-3 px-10 text-xl">History</Link>
                 </div>
                 <div>
                     <Outlet/>

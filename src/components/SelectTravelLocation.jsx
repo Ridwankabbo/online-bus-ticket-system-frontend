@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom'; // 👈 Import useNavigate
 import "./selectTravelLocation.css";
+import TripCard from "./TripCard";
 
 
 const LOCATIONS_URL = "http://localhost:8000/bus/locations/";
-const BUS_LIST_URL = '';
-export default function SelectLocation({ user_auth_token }) {
+// const BUS_LIST_URL = 'http://localhost:8000/bus/shidule-list/';
+export default function SelectLocation() {
     const [locationList, setLocationList] = useState([]);
+    const [tripShidulesList, setTripShidulesList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate(); // 👈 Initialize the hook
@@ -20,7 +22,7 @@ export default function SelectLocation({ user_auth_token }) {
             const response = await fetch(LOCATIONS_URL, {
                 method: "GET",
                 headers: {
-                    'Authorization': `Bearer ${user_auth_token}`,
+                    // 'Authorization': `Bearer ${user_auth_token}`,
                     'Content-Type': 'application/json'
                 },
             });
@@ -38,16 +40,44 @@ export default function SelectLocation({ user_auth_token }) {
         }
     };
 
-    const fetchBusList = async () => {
-        try {
-            const request = await fetch();
-        } catch (error) {
+    // const fetchBusList = async () => {
+    //     try {
+    //         const request = await fetch(BUS_LIST_URL, {
+    //             method: "GET",
+    //             headers: {
+    //                 // 'Authorization': `Bearer ${user_auth_token}`,
+    //                 'Content-Type': 'application/json'
+    //             },
+    //         });
 
+    //         if (request.ok) {
+    //             const result = await request.json();
+    //             console.log(result);
+
+    //             setTripShidulesList(result)
+
+    //         }
+    //     } catch (error) {
+
+    //     }
+    // };
+    
+    const handleBusSelection = (trip) => {
+        // e.preventDefault();
+        console.log(trip.id, trip.bus?.id);
+        const bus_details = {
+            shidule_id: trip.id,
+            bus_id : trip.bus?.id,
+            bus_name :trip.bus?.name,
+            source :trip.route?.source?.name,
+            destination : trip.route?.destination?.name
         }
-    };
+        
+        navigate('/bus-results/seats', { state: bus_details })
+    }
     useEffect(() => {
         fetchLocatinsData();
-        fetchBusList();
+        // fetchBusList();
     }, []);
 
     // --- FORM SUBMISSION HANDLER ---
@@ -59,12 +89,13 @@ export default function SelectLocation({ user_auth_token }) {
             return;
         }
 
-        // 1. Filter the bus list based on the selected values
-        // const filteredBuses = locationList.filter(bus => 
-        //     bus.from_location === selectedFrom && bus.destination === selectedDest
-        // );
+        tripShidulesList.map(trip=>{
+            if (trip.route?.source?.name == selectedFrom && trip.route?.destination?.name == selectedDest) {
+                
+            }
+        });
 
-        // 2. Navigate to the results page and pass the filtered data
+        
         navigate('/bus-results', { state: { from: selectedFrom, dest: selectedDest } });
     };
 
@@ -79,7 +110,7 @@ export default function SelectLocation({ user_auth_token }) {
 
     return (
         <section className="my-4 text-center  mx-20 rounded-md">
-            {/* <h2 className="text-[30px] py-15 font-semibold">Select your Journey From and Destination </h2> */}
+            <h2 className="text-[30px] py-15 font-semibold">filter bus shidules for your Journey From and Destination </h2>
             {/* 👈 Attach handleSearch to the form's onSubmit */}
             <form onSubmit={handleSearch}>
                 <div className="flex justify-around flex-wrap gap-10">
@@ -113,6 +144,17 @@ export default function SelectLocation({ user_auth_token }) {
                     <button className="bg-green-700 text-white px-5 py-3 rounded-sm" type="submit">find bus</button>
                 </div>
             </form>
+
+            {/* <div>
+                <h2 className="text-3xl font-semibold py-5 ">Bus shidule list</h2>
+                <div>
+                    {Array(tripShidulesList) && tripShidulesList.map(trip => {
+                        return (
+                            <TripCard key={trip.id} trip={trip} handleBusSelection={handleBusSelection} />
+                        )
+                    })}
+                </div>
+            </div> */}
         </section>
     );
 }

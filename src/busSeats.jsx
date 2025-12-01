@@ -4,14 +4,14 @@ import { useLocation } from 'react-router-dom';
 
 const SEATS_URL = "http://localhost:8000/bus/bus-seats/";
 const BusSeatView = ({ busId }) => {
-    const location = useLocation()
+    const location = useLocation();
     // console.log(location);
 
     const [seats, setSeats] = useState([]);
     const [selectedSeats, setSelectedSeats] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const { shidule_id, bus_id, bus_name, source, destination } = location.state || {};
+    const { shidule_id, bus_id, bus_name, source, destination, price } = location.state || {};
 
     console.log("shidule",shidule_id, 'bus', bus_id, bus_name, source, destination);
     
@@ -90,7 +90,6 @@ const BusSeatView = ({ busId }) => {
         if (seat.seat_status == true) {
             return 'bg-gray-400 cursor-not-allowed';
         } else if (isSelected) {
-            // ✅ Ensure this is a strong, distinct blue
             return 'bg-blue-600 border-blue-800 hover:bg-blue-700';
         } else {
             // Available
@@ -149,10 +148,10 @@ const BusSeatView = ({ busId }) => {
             <div className="mt-8 pt-4 border-t border-gray-300">
                 <h3 className="text-xl font-semibold mb-3">Your Selection:</h3>
                 <p className="text-lg">
-                    **Seats:** {selectedSeats.length > 0 ? selectedSeats.join(', ') : 'None'}
+                    Seats: {selectedSeats.length > 0 ? selectedSeats.join(', ') : 'None'}
                 </p>
                 <p className="text-lg text-green-700 font-bold">
-                    {/* **Total Price:** {selectedSeats.length * initialSeats[0].price} BDT */}
+                    Total Price: {selectedSeats.length * price} BDT
                 </p>
                 <button
                     className={`mt-4 w-full py-3 rounded text-white font-bold transition-colors 
@@ -168,7 +167,7 @@ const BusSeatView = ({ busId }) => {
 
             <div className="mt-6 flex justify-center space-x-4 text-sm">
                 <span className="flex items-center"><div className="w-4 h-4 rounded-full bg-green-500 mr-2"></div> Available</span>
-                {/* ✅ FIX: Change legend color to bg-blue-600 for consistency */}
+                
                 <span className="flex items-center"><div className="w-4 h-4 rounded-full bg-blue-600 mr-2"></div> Selected</span>
                 <span className="flex items-center"><div className="w-4 h-4 rounded-full bg-gray-400 mr-2"></div> Booked</span>
             </div>

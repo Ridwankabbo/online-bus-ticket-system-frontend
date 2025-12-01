@@ -37,7 +37,7 @@ export default function Singin() {
                 
                 localStorage.setItem('accessToken', result.access);
                 localStorage.setItem('refreshToken', result.refresh);
-                navigate('/user-dashboard');
+                navigate('/dashboard');
                 
                 alert('Login successfully!');
             }
