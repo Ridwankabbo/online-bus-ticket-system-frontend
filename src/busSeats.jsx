@@ -76,8 +76,7 @@ const BusSeatView = ({ busId }) => {
 
     const handleSeatSelection= (seat)=>{
         const seatsBookingData = {
-            user :'',
-            shidule:'',
+            shidule:shidule_id,
             seat: selectedSeats
         }
     }

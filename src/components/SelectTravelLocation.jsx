@@ -6,7 +6,7 @@ import TripCard from "./TripCard";
 
 const LOCATIONS_URL = "http://localhost:8000/bus/locations/";
 // const BUS_LIST_URL = 'http://localhost:8000/bus/shidule-list/';
-export default function SelectLocation() {
+export default function SelectLocation({navigaet_url}) {
     const [locationList, setLocationList] = useState([]);
     const [tripShidulesList, setTripShidulesList] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -22,7 +22,7 @@ export default function SelectLocation() {
             const response = await fetch(LOCATIONS_URL, {
                 method: "GET",
                 headers: {
-                    // 'Authorization': `Bearer ${user_auth_token}`,
+                    
                     'Content-Type': 'application/json'
                 },
             });
@@ -96,7 +96,7 @@ export default function SelectLocation() {
         });
 
         
-        navigate('/bus-results', { state: { from: selectedFrom, dest: selectedDest } });
+        navigate(navigaet_url, { state: { from: selectedFrom, dest: selectedDest } });
     };
 
     // --- Data Processing for Dropdowns ---
