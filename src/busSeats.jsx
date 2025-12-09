@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 
 const SEATS_URL = "http://localhost:8000/bus/bus-seats/";
@@ -10,6 +10,7 @@ const BusSeatView = ({ busId }) => {
     const [seats, setSeats] = useState([]);
     const [selectedSeats, setSelectedSeats] = useState([]);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     const { shidule_id, bus_id, bus_name, source, destination, price } = location.state || {};
 
@@ -96,6 +97,10 @@ const BusSeatView = ({ busId }) => {
         }
     };
 
+    const procedeToPayment = ()=>{
+        navigate('/bus-results/seats/payment')
+    }
+
     // --- RENDERING HELPERS ---
 
 
@@ -157,6 +162,7 @@ const BusSeatView = ({ busId }) => {
                         ${selectedSeats.length > 0 ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-500 cursor-not-allowed'}`
                     }
                     disabled={selectedSeats.length === 0}
+                    onClick={procedeToPayment}
                 >
                     Proceed to Bookng
                 </button>

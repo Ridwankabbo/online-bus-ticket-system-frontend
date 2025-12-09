@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { LogOut, User, History, ArrowLeft, X, Search, MapPin, Calendar, Clock } from 'lucide-react';
 
 // --- MOCK DATA ---
@@ -224,7 +224,16 @@ const DetailItem = ({ icon: Icon, label, value }) => (
 /**
  * 4. Main App Component (Routing and State Management)
  */
+const BookingsURL = "http://localhost:8000/booking/my-bookings/";
+const UserProfileURL = "http://localhost:8000/user/profile/"
 const UserDashboard = () => {
+
+    // State for user profile
+    const [userProfile, setUserProfile] = useState([]);
+
+    // State for bookings list
+    const [bookingsList, setBookingsList] = useState([]);
+
     // State for navigation (Profile, History)
     const [currentPage, setCurrentPage] = useState('History'); 
     
@@ -233,6 +242,9 @@ const UserDashboard = () => {
     
     // State for search term in HistoryView
     const [searchTerm, setSearchTerm] = useState('');
+
+    // get value forom local storage
+    const accessToken = localStorage.getItem('accessToken');
 
     const handleLogout = () => {
         console.log('User Rohan Ahmed logged out.');
@@ -245,14 +257,51 @@ const UserDashboard = () => {
         setSelectedBooking(booking);
     };
 
+    const getBookingsList = async()=>{
+        const request = await fetch(BookingsURL,{
+            method:"POST",
+            headers:{
+                'Authorization': `Bearer ${accessToken}`
+            },
+            
+        })
+
+        if(request.ok){
+            const result = await request.json();
+            console.log("bookings list",result);
+            
+            setBookingsList(result);
+        }
+    }
+
+    const getUserProfile = async () =>{
+        const request = await fetch(UserProfileURL, {
+            method:"GET",
+            headers:{
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
+
+        if(request.ok){
+            const result = await request.json();
+            console.log("user profile", result);
+            setUserProfile(result);
+        }
+    }
+
+    useEffect(()=>{
+        getBookingsList();
+        getUserProfile();
+    },[]);
+
     const renderContent = () => {
         switch (currentPage) {
             case 'Profile':
-                return <ProfileView user={MOCK_USER} />;
+                return <ProfileView user={userProfile} />;
             case 'History':
                 return (
                     <HistoryView 
-                        bookings={MOCK_BOOKINGS} 
+                        bookings={bookingsList} 
                         onSelectBooking={handleSelectBooking}
                         searchTerm={searchTerm}
                         onSearchChange={setSearchTerm}

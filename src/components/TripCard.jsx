@@ -9,7 +9,7 @@ const TripCard = (({trip, handleBusSelection}) => {
     const destination = trip.route?.destination?.name;
     const distance = trip.destance;
     const price = parseFloat(trip.price).toFixed(2);
-    const time = trip.bus_time;
+    const time = trip.bus_date_time;
 
     console.log(bus_name, bus_type, source, destination, price, time);
 
@@ -51,7 +51,7 @@ const TripCard = (({trip, handleBusSelection}) => {
             {/* 3. TRIP METRICS */}
             <div className="grid grid-cols-3 gap-4 text-center border-t pt-4">
                 <div>
-                    <p className="text-sm text-gray-500">Departure Time</p>
+                    <p className="text-sm text-gray-500">Arrival Date and Time</p>
                     <p className="text-xl font-bold text-indigo-600">{time}</p>
                 </div>
                 <div>

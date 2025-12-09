@@ -6,7 +6,7 @@ import TripCard from "./TripCard";
 
 const LOCATIONS_URL = "http://localhost:8000/bus/locations/";
 // const BUS_LIST_URL = 'http://localhost:8000/bus/shidule-list/';
-export default function SelectLocation({navigaet_url}) {
+export default function SelectLocation({ navigaet_url }) {
     const [locationList, setLocationList] = useState([]);
     const [tripShidulesList, setTripShidulesList] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -16,13 +16,14 @@ export default function SelectLocation({navigaet_url}) {
     // State to hold the user's selections
     const [selectedFrom, setSelectedFrom] = useState('');
     const [selectedDest, setSelectedDest] = useState('');
+    const [selectedDate, setSelectedDate] = useState('');
 
     const fetchLocatinsData = async () => {
         try {
             const response = await fetch(LOCATIONS_URL, {
                 method: "GET",
                 headers: {
-                    
+
                     'Content-Type': 'application/json'
                 },
             });
@@ -61,20 +62,7 @@ export default function SelectLocation({navigaet_url}) {
 
     //     }
     // };
-    
-    const handleBusSelection = (trip) => {
-        // e.preventDefault();
-        console.log(trip.id, trip.bus?.id);
-        const bus_details = {
-            shidule_id: trip.id,
-            bus_id : trip.bus?.id,
-            bus_name :trip.bus?.name,
-            source :trip.route?.source?.name,
-            destination : trip.route?.destination?.name
-        }
-        
-        navigate('/bus-results/seats', { state: bus_details })
-    }
+
     useEffect(() => {
         fetchLocatinsData();
         // fetchBusList();
@@ -89,14 +77,16 @@ export default function SelectLocation({navigaet_url}) {
             return;
         }
 
-        tripShidulesList.map(trip=>{
+        tripShidulesList.map(trip => {
             if (trip.route?.source?.name == selectedFrom && trip.route?.destination?.name == selectedDest) {
-                
+
             }
         });
 
+        // console.log("from travel locations:",selectedFrom, selectedDest, selectedDate);
         
-        navigate(navigaet_url, { state: { from: selectedFrom, dest: selectedDest } });
+
+        navigate('/bus-results', { state: { from: selectedFrom, dest: selectedDest, date:selectedDate } });
     };
 
     // --- Data Processing for Dropdowns ---
@@ -140,6 +130,12 @@ export default function SelectLocation({navigaet_url}) {
                             <option key={location} value={location}>{location}</option>
                         ))}
                     </select>
+
+                    <div class="relative">
+                        <label for="date" class="block text-sm font-medium text-gray-700 mb-1">Travel Date</label>
+                        <i class="fas fa-calendar-alt absolute left-3 top-9 text-gray-400"></i>
+                        <input type="date" id="date" onChange={(e)=>setSelectedDate(e.target.value)} value={selectedDate} class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-shadow"/>
+                    </div>
 
                     <button className="bg-green-700 text-white px-5 py-3 rounded-sm" type="submit">find bus</button>
                 </div>

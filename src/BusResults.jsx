@@ -13,18 +13,24 @@ export default function BusResults() {
     const [bus_id, setBusId] = useState();
 
     // Extract the state (results, from, dest) passed during navigation
-    const { from, dest } = location.state || {};
+    const { from, dest, date } = location.state || {};
 
-    // console.log(from, dest);
+    console.log(from, dest, date);
 
 
     const searchData = {
         source: from,
-        destination: dest
+        destination: dest,
+        date:date
     }
-    const params = new URLSearchParams(searchData).toString();
-    const WithParams = `${BUS_URL}?${params}`
-    console.log(WithParams);
+    // const params = new URLSearchParams(searchData).toString();
+    // const WithParams = `${BUS_URL}?${params}`
+    // console.log(WithParams);
+
+    const fromData = new FormData();
+    fromData.append('source', from)
+    fromData.append('destination', dest)
+    fromData.append('date', date)
 
 
     if (!tripShidules) {
@@ -57,7 +63,17 @@ export default function BusResults() {
             // console.log("this is form data:",searchData);
 
             try {
-                const request = await fetch(WithParams);
+                const request = await fetch(BUS_URL,{
+                    method:"POST",
+                    headers:{
+                        'Content-Type':'application/json'
+                    },
+                    body:JSON.stringify({
+                        'source':from,
+                        'destination': dest,
+                        'date': date
+                    })
+                });
 
                 if (request.ok) {
                     const result = await request.json()

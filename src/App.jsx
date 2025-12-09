@@ -14,6 +14,7 @@ import ResetPassword from './reset_password';
 import BusSeatView from './busSeats';
 import TicketsHistory from './dashboard_pages/history';
 import SearchBus from './dashboard_pages/search_bus';
+import PaymentView from './payment';
 
 function App() {
 
@@ -27,6 +28,7 @@ function App() {
           <Route path='/about' />
           <Route path='/bus-results' element={<BusResults/>}/>
           <Route path='bus-results/seats' element={<BusSeatView/>}/>
+          <Route path='/bus-results/seats/payment' element={<PaymentView/>}/>
           {/* <Route path='/singup' element={<Singup />} />
           <Route path='/singin' element={<Singin />} /> */}
         </Route>
