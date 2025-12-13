@@ -147,7 +147,7 @@ const MobileForm = () => {
 };
 
 
-const PaymentView = () => {
+const PaymentView = ({seats, total_amount}) => {
     const [activeTab, setActiveTab] = useState('card');
     const [modalVisible, setModalVisible] = useState(false);
 

@@ -34,7 +34,7 @@ const BusSeatView = ({ busId }) => {
 
         // const bus_id = new FormData();
         // bus_id.append('bus_id', id);
-        const fetchSeats = async (formData) => {
+        const fetchSeats = async () => {
 
             try {
                 const request = await fetch(WithParams);
@@ -98,6 +98,7 @@ const BusSeatView = ({ busId }) => {
     };
 
     const procedeToPayment = ()=>{
+        localStorage.setItem('selectedSeats', seats);
         navigate('/bus-results/seats/payment')
     }
 
