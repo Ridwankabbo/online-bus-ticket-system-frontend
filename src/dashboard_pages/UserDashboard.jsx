@@ -42,23 +42,24 @@ const getStatusClasses = (status) => {
  * 1. User Profile View
  */
 const ProfileView = ({ user }) => (
-    <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-2xl space-y-6 max-w-xl mx-auto border border-violet-200 dark:border-violet-700">
+    <div className="bg-whit p-8 rounded-xl shadow-2xl space-y-6 max-w-xl mx-auto border border-violet-200 dark:border-violet-700">
         <div className="flex items-center space-x-4 border-b pb-4 border-violet-100 dark:border-violet-700">
             <div className="p-3 bg-violet-100 dark:bg-violet-900 rounded-full">
                 <User className="w-8 h-8 text-violet-600 dark:text-violet-300" />
             </div>
             <div>
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white">{user.name}</h2>
-                <p className="text-violet-600 dark:text-violet-400 font-medium">{user.role}</p>
+                <h2 className="text-3xl font-bold text-gray-900">{user.user?.username}</h2>
+                {/* <p className="text-violet-600 dark:text-violet-400 font-medium">{user.role}</p> */}
             </div>
         </div>
 
         <div className="space-y-4">
-            <ProfileField label="Account ID" value={user.id} />
-            <ProfileField label="Email Address" value={user.email} />
+            {/* <ProfileField label="Account ID" value={user.id} /> */}
+            <ProfileField label="Email Address" value={user.user?.email} />
             <ProfileField label="Phone Number" value={user.phone} />
-            <ProfileField label="Last Login" value={user.lastLogin} />
-            <ProfileField label="Account Status" value={user.systemStatus} isBadge />
+            <ProfileField label="User Address" value={user.address}/>
+            {/* <ProfileField label="Last Login" value={user.lastLogin} />
+            <ProfileField label="Account Status" value={user.systemStatus} isBadge /> */}
         </div>
 
         <button className="w-full py-3 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg shadow-md transition duration-300 transform hover:scale-[1.01]">
@@ -68,6 +69,7 @@ const ProfileView = ({ user }) => (
 );
 
 const ProfileField = ({ label, value, isBadge = false }) => (
+    
     <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
         <span className="text-gray-500 dark:text-gray-400 font-medium">{label}</span>
         {isBadge ? (
@@ -91,10 +93,10 @@ const HistoryView = ({ bookings, onSelectBooking, searchTerm, onSearchChange }) 
     }, [bookings]);
 
     // Filter bookings based on search term (case-insensitive search on user or route)
-    const filteredBookings = sortedBookings.filter(booking => 
-        booking.route.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        booking.id.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    // const filteredBookings = sortedBookings.filter(booking => 
+    //     booking.route.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    //     booking.id.toLowerCase().includes(searchTerm.toLowerCase())
+    // );
 
     return (
         <div className="space-y-6">
@@ -119,11 +121,12 @@ const HistoryView = ({ bookings, onSelectBooking, searchTerm, onSearchChange }) 
                     </div>
                 </div>
                 <div className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                    {filteredBookings.length > 0 ? filteredBookings.map((booking) => (
+                    {bookings > 0 ?  bookings.map((booking) => (
                         <BookingListItem key={booking.id} booking={booking} onClick={() => onSelectBooking(booking)} />
                     )) : (
                         <p className="p-6 text-center text-gray-500 dark:text-gray-400">No bookings found matching your search criteria.</p>
                     )}
+                    
                 </div>
             </div>
         </div>
@@ -264,15 +267,15 @@ const UserDashboard = () => {
                 'Authorization': `Bearer ${accessToken}`
             },
             
-        })
+        });
 
         if(request.ok){
             const result = await request.json();
             console.log("bookings list",result);
             
             setBookingsList(result);
-        }
-    }
+        };
+    };
 
     const getUserProfile = async () =>{
         const request = await fetch(UserProfileURL, {
@@ -317,8 +320,8 @@ const UserDashboard = () => {
             onClick={() => setCurrentPage(page)}
             className={`flex items-center space-x-3 p-3 rounded-xl transition duration-300 w-full text-left
                 ${currentPage === page
-                    ? 'bg-violet-600 text-white shadow-lg font-semibold transform scale-[1.03] sm:scale-100'
-                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    ? ' text-gray-600 shadow-lg font-semibold transform scale-[1.03] sm:scale-100'
+                    : 'text-gray-600 font-semibold'
                 }`}
         >
             <Icon className="w-5 h-5" />
@@ -327,11 +330,11 @@ const UserDashboard = () => {
     );
 
     return (
-        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col antialiased">
+        <div className="min-h-screen bg-gray-100 flex flex-col antialiased">
             {/* Header/Navigation */}
-            <header className="sticky top-0 z-10 bg-white dark:bg-gray-800 shadow-xl p-4 sm:p-6 flex justify-between items-center border-b border-violet-300 dark:border-violet-900">
+            <header className="sticky top-0 z-10 bg-white shadow-xl p-4 sm:p-6 flex justify-between items-center border-b border-violet-300 dark:border-violet-900">
                 <h1 className="text-2xl font-extrabold text-violet-700 dark:text-violet-400">
-                    <span className="hidden sm:inline">My Ticket Dashboard</span>
+                    <span className="hidden sm:inline text-violet-950">My Ticket Dashboard</span>
                     <span className="sm:hidden">Dashboard</span>
                 </h1>
                 
@@ -341,7 +344,7 @@ const UserDashboard = () => {
                     <NavItem page="History" icon={History} label="My Bookings" />
                     <button
                         onClick={handleLogout}
-                        className="p-3 rounded-xl transition duration-300 bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900/50 dark:text-red-300 dark:hover:bg-red-900 font-semibold"
+                        className="p-3 rounded-xl  bg-red-100 text-red-600 bg-red-200bg-red-900/50 font-semibold"
                         aria-label="Logout"
                     >
                         <LogOut className="w-5 h-5" />
@@ -354,7 +357,7 @@ const UserDashboard = () => {
             <main className="flex-grow p-4 sm:p-8">
                 <div className="max-w-6xl mx-auto">
                     {/* Title for the current view */}
-                    <h2 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white border-b pb-3 border-violet-300 dark:border-violet-700">
+                    <h2 className="text-3xl font-bold mb-8  text-gray-600 border-b pb-3 border-violet-300 dark:border-violet-700">
                         {currentPage === 'Profile' ? 'My Account Profile' : 'Booking History'}
                     </h2>
 

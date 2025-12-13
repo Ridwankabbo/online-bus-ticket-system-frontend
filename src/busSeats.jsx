@@ -57,7 +57,7 @@ const BusSeatView = ({ busId }) => {
             // await new Promise(resolve => setTimeout(resolve, 500)); 
         };
 
-        fetchSeats(bus_id);
+        fetchSeats();
     }, [busId, WithParams]);
 
     // --- SEAT SELECTION LOGIC ---
