@@ -1,36 +1,15 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { LogOut, User, History, ArrowLeft, X, Search, MapPin, Calendar, Clock } from 'lucide-react';
 
-// --- MOCK DATA ---
-
-// Mock User Data (Now a standard customer)
-// const MOCK_USER = {
-//     id: 'customer-101',
-//     name: 'Rohan Ahmed',
-//     role: 'Valued Customer',
-//     email: 'rohan.ahmed@example.com',
-//     phone: '+880 1712 345678',
-//     lastLogin: '2024-10-27 10:30 AM',
-//     systemStatus: 'Active',
-// };
-
-// Mock Bookings Data (Filtered to show only user Rohan Ahmed's bookings for realism)
-// const MOCK_BOOKINGS = [
-//     { id: 'B001', date: '2024-10-26', route: 'Dhaka to Cox\'s Bazar', user: 'Rohan Ahmed', status: 'Confirmed', seats: ['A1', 'A2'], total: 2500, departure: '08:00 AM' },
-//     { id: 'B006', date: '2024-10-25', route: 'Dhaka to Bogura', user: 'Rohan Ahmed', status: 'Cancelled', seats: ['E5'], total: 950, departure: '09:00 AM' },
-//     { id: 'B007', date: '2024-10-27', route: 'Sylhet to Dhaka', user: 'Rohan Ahmed', status: 'Confirmed', seats: ['F1', 'F2', 'F3'], total: 3600, departure: '07:30 PM' },
-//     { id: 'B008', date: '2024-10-28', route: 'Khulna to Jessore', user: 'Rohan Ahmed', status: 'Pending', seats: ['C1'], total: 550, departure: '01:00 PM' },
-// ];
-
 // Utility function for status coloring
 const getStatusClasses = (status) => {
     switch (status) {
         case 'Confirmed':
-            return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200';
+            return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+        case 'Pending':
+            return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
         case 'Cancelled':
             return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-        case 'Pending':
-            return 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200';
         default:
             return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
     }
@@ -73,11 +52,11 @@ const ProfileField = ({ label, value, isBadge = false }) => (
     <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
         <span className="text-gray-500 dark:text-gray-400 font-medium">{label}</span>
         {isBadge ? (
-            <span className="px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+            <span className="px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800 ">
                 {value}
             </span>
         ) : (
-            <span className="text-gray-800 dark:text-gray-200 font-semibold">{value}</span>
+            <span className="text-gray-800  font-semibold">{value}</span>
         )}
     </div>
 );
@@ -85,73 +64,109 @@ const ProfileField = ({ label, value, isBadge = false }) => (
 /**
  * 2. Bookings History List View
  */
+
+const formatDate = (isoString) => {
+    try {
+        const date = new Date(isoString);
+        return date.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+        });
+    } catch (e) {
+        return "N/A Date";
+    }
+}
 const HistoryView = ({ bookings, onSelectBooking, searchTerm, onSearchChange }) => {
     
-    // Sort bookings by date descending
-    const sortedBookings = useMemo(() => {
-        return [...bookings].sort((a, b) => new Date(b.date) - new Date(a.date));
+    // 💡 FIX 1: Map raw total_amount to 'total' and ensure dates are usable
+    const formattedBookings = useMemo(() => {
+        return bookings.map(b => ({
+            ...b,
+            total: b.total_amount, // Map the JSON field
+        }));
     }, [bookings]);
 
-    // Filter bookings based on search term (case-insensitive search on user or route)
-    // const filteredBookings = sortedBookings.filter(booking => 
-    //     booking.route.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    //     booking.id.toLowerCase().includes(searchTerm.toLowerCase())
-    // );
+    // 💡 FIX 2: Sort bookings by date descending (using created_at)
+    const sortedBookings = useMemo(() => {
+        return [...formattedBookings].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    }, [formattedBookings]);
+
+    // 💡 FIX 3: Implement filtering logic correctly
+    const filteredBookings = sortedBookings.filter(booking => {
+        if (!searchTerm) return true;
+        const term = searchTerm.toLowerCase();
+        
+        // Search by Route, Operator, Status, or ID (convert ID to string)
+        return (
+            (booking.route && booking.route.toLowerCase().includes(term)) ||
+            (booking.bus_operator && booking.bus_operator.toLowerCase().includes(term)) ||
+            (booking.status && booking.status.toLowerCase().includes(term)) ||
+            String(booking.id).includes(term)
+        );
+    });
 
     return (
         <div className="space-y-6">
             <div className="relative">
                 <input
                     type="text"
-                    placeholder="Search your bookings by Route or Booking ID..."
+                    placeholder="Search your bookings by Route, ID, or Status..."
                     value={searchTerm}
                     onChange={(e) => onSearchChange(e.target.value)}
-                    className="w-full p-3 pl-10 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-violet-500 focus:border-violet-500 transition duration-150 shadow-md"
+                    className="w-full p-3 pl-10 rounded-lg border border-gray-300 bg-white text-gray-900 focus:ring-violet-500 focus:border-violet-500 transition duration-150 shadow-md"
                 />
                 <Search className="absolute left-3 top-3.5 w-4 h-4 text-gray-400 dark:text-gray-300" />
             </div>
 
-            <div className="overflow-hidden rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700">
-                <div className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <div className="grid grid-cols-12 px-6 py-3 bg-gray-50 dark:bg-gray-800 font-bold uppercase text-xs tracking-wider text-gray-500 dark:text-gray-400">
+            <div className="overflow-hidden rounded-xl shadow-2xl border border-gray-200">
+                {/* Table Header */}
+                <div className="min-w-full divide-y divide-gray-200">
+                    <div className="grid grid-cols-12 px-6 py-3 bg-gray-50 font-bold uppercase text-xs tracking-wider text-gray-500 dark:text-gray-400">
                         <div className="col-span-3">ID / Status</div>
-                        <div className="col-span-4">Route</div>
-                        <div className="col-span-3 hidden sm:block">Departure Time</div>
+                        <div className="col-span-4">Route / Operator</div>
+                        <div className="col-span-3 hidden sm:block">Booked Date @ Dep.</div>
                         <div className="col-span-2 text-right">Total Paid</div>
                     </div>
                 </div>
-                <div className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                    {bookings > 0 ?  bookings.map((booking) => (
-                        <BookingListItem key={booking.id} booking={booking} onClick={() => onSelectBooking(booking)} />
+                
+                {/* Table Body */}
+                <div className="bg-white divide-y divide-gray-200">
+                    {filteredBookings.length > 0 ? filteredBookings.map((booking) => (
+                        <BookingListItem 
+                            key={booking.id} 
+                            booking={booking} 
+                            onClick={() => onSelectBooking(booking)} 
+                        />
                     )) : (
-                        <p className="p-6 text-center text-gray-500 dark:text-gray-400">No bookings found matching your search criteria.</p>
+                        <p className="p-6 text-center text-gray-500 dark:text-gray-400">
+                            {searchTerm ? "No bookings found matching your search criteria." : "You have no booking history yet."}
+                        </p>
                     )}
-                    
                 </div>
             </div>
         </div>
     );
 };
-
 const BookingListItem = ({ booking, onClick }) => (
     <div
         onClick={onClick}
         className="grid grid-cols-12 px-6 py-4 hover:bg-violet-50 dark:hover:bg-gray-700 transition duration-150 cursor-pointer items-center"
     >
         <div className="col-span-3">
-            <p className="text-sm font-semibold text-violet-600 dark:text-violet-400">{booking.id}</p>
+            <p className="text-sm font-semibold text-violet-600 dark:text-violet-400">#{booking.id}</p>
             <span className={`inline-flex mt-1 px-2 py-0.5 text-xs font-semibold rounded-full ${getStatusClasses(booking.status)}`}>
                 {booking.status}
             </span>
         </div>
         <div className="col-span-4">
-            <p className="text-sm font-semibold text-gray-900 dark:text-white">{booking.route}</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Seats: {booking.seats.join(', ')}</p>
+            <p className="text-sm font-semibold text-gray-900">{booking.route}</p>
+            <p className="text-md text-gray-500">Seats: {booking.seats.join(', ')}</p>
         </div>
-        <div className="col-span-3 hidden sm:block text-sm text-gray-600 dark:text-gray-300">
-            {booking.date} @ {booking.departure}
+        <div className="col-span-3 hidden sm:block text-sm text-gray-600">
+            {formatDate(booking.created_at)} @ {booking.departure_time}
         </div>
-        <div className="col-span-2 text-sm font-bold text-right text-gray-800 dark:text-gray-100">
+        <div className="col-span-2 text-sm font-bold text-right text-gray-800">
             BDT {booking.total.toLocaleString()}
         </div>
     </div>
@@ -162,6 +177,9 @@ const BookingListItem = ({ booking, onClick }) => (
  */
 const BookingDetailModal = ({ booking, onClose }) => {
     if (!booking) return null;
+    
+    // Ensure total is available (since we mapped total_amount to total)
+    const totalPaid = booking.total || booking.total_amount || 0;
 
     return (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-75 z-50 flex justify-center items-center p-4">
@@ -170,8 +188,8 @@ const BookingDetailModal = ({ booking, onClose }) => {
                 {/* Modal Header */}
                 <div className="p-5 flex justify-between items-center bg-violet-600 dark:bg-violet-800 text-white">
                     <h3 className="text-xl font-bold flex items-center">
-                        <MapPin className="w-5 h-5 mr-2" />
-                        Ticket: {booking.id}
+                        <Info className="w-5 h-5 mr-2" />
+                        Booking #{booking.id} Details
                     </h3>
                     <button onClick={onClose} className="p-1 rounded-full hover:bg-violet-700 dark:hover:bg-violet-900 transition">
                         <X className="w-5 h-5" />
@@ -182,15 +200,15 @@ const BookingDetailModal = ({ booking, onClose }) => {
                 <div className="p-6 space-y-4 text-gray-800 dark:text-gray-200">
                     
                     <DetailItem icon={MapPin} label="Route" value={booking.route} />
-                    <DetailItem icon={Calendar} label="Date" value={booking.date} />
-                    <DetailItem icon={Clock} label="Departure Time" value={booking.departure} />
-                    <DetailItem icon={User} label="Booked For" value={booking.user} />
-                    <DetailItem label="Seats" value={booking.seats.join(', ')} />
+                    <DetailItem icon={Calendar} label="Booking Date" value={formatDate(booking.created_at)} />
+                    <DetailItem icon={Clock} label="Departure Time" value={booking.departure_time} />
+                    <DetailItem icon={User} label="Bus Operator" value={booking.bus_operator} />
+                    <DetailItem label="Booked Seats" value={booking.seats.join(', ')} />
                     
                     <div className="flex justify-between items-center pt-3 border-t border-gray-200 dark:border-gray-700">
                         <span className="font-bold text-lg">Total Paid</span>
                         <span className="font-extrabold text-xl text-violet-600 dark:text-violet-400">
-                            BDT {booking.total.toLocaleString()}
+                            BDT {totalPaid.toLocaleString()}
                         </span>
                     </div>
 
@@ -201,10 +219,15 @@ const BookingDetailModal = ({ booking, onClose }) => {
                         </span>
                     </div>
                     
-                    {/* Show Cancel button only for Confirmed/Pending bookings */}
-                    {booking.status !== 'Cancelled' && (
+                    {/* Action Button */}
+                    {booking.status === 'Confirmed' && (
                         <button className="w-full mt-4 py-3 border border-red-500 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/50 rounded-lg transition duration-300 font-semibold">
-                            Cancel My Booking (Request Refund)
+                            Cancel Booking
+                        </button>
+                    )}
+                    {booking.status === 'Pending' && (
+                        <button className="w-full mt-4 py-3 border border-yellow-500 text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-900/50 rounded-lg transition duration-300 font-semibold">
+                            Complete Payment
                         </button>
                     )}
                 </div>
@@ -216,10 +239,10 @@ const BookingDetailModal = ({ booking, onClose }) => {
 const DetailItem = ({ icon: Icon, label, value }) => (
     <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700 last:border-b-0">
         <span className="text-gray-500 dark:text-gray-400 flex items-center">
-            {Icon && <Icon className="w-4 h-4 mr-2" />}
+            {Icon && <Icon className="w-4 h-4 mr-2 text-violet-500" />}
             {label}
         </span>
-        <span className="font-medium">{value}</span>
+        <span className="font-medium text-gray-800 dark:text-gray-200">{value}</span>
     </div>
 );
 
@@ -366,7 +389,7 @@ const UserDashboard = () => {
             </main>
             
             {/* Footer Placeholder */}
-             <footer className="w-full text-center py-4 text-xs text-gray-500 dark:text-gray-600 border-t dark:border-gray-800">
+             <footer className="w-full text-center py-4 text-xs text-gray-500 border-t">
                 © 2024 BusTicket System. All rights reserved.
             </footer>
 
